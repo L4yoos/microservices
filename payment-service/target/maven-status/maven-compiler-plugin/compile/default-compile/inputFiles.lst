@@ -1,0 +1,16 @@
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/PaymentServiceApplication.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/adapters/persistence/JpaPaymentRepository.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/adapters/persistence/JpaPaymentRepositoryAdapter.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/adapters/rabbitmq/RabbitMQEventListener.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/adapters/rabbitmq/RabbitMQEventPublisher.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/adapters/rest/GlobalExceptionHandler.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/adapters/rest/PaymentController.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/application/PaymentService.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/application/exception/PaymentAlreadyExistsException.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/application/exception/PaymentNotFoundException.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/application/port/PaymentEventPublisherPort.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/application/port/PaymentRepositoryPort.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/config/RabbitMQConfig.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/domain/Payment.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/domain/PaymentCompletedEvent.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/main/java/com.example.paymentservice/domain/PaymentStatus.java

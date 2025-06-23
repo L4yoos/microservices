@@ -1,0 +1,3 @@
+/Users/l4yoos/Desktop/microservices/order-service/src/test/java/com/example/orderservice/adapters/rabbitmq/OrderEventPublisherTest.java
+/Users/l4yoos/Desktop/microservices/order-service/src/test/java/com/example/orderservice/adapters/rest/OrderControllerTest.java
+/Users/l4yoos/Desktop/microservices/order-service/src/test/java/com/example/orderservice/application/OrderServiceTest.java

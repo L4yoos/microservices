@@ -1,0 +1,3 @@
+com/example/orderservice/application/OrderServiceTest.class
+com/example/orderservice/adapters/rabbitmq/OrderEventPublisherTest.class
+com/example/orderservice/adapters/rest/OrderControllerTest.class

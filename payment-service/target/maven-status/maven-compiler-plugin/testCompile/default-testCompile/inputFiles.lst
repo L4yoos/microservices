@@ -1,0 +1,3 @@
+/Users/l4yoos/Desktop/microservices/payment-service/src/test/java/com/example/paymentservice/adapters/rabbitmq/RabbitMQEventPublisherTest.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/test/java/com/example/paymentservice/adapters/rest/PaymentControllerTest.java
+/Users/l4yoos/Desktop/microservices/payment-service/src/test/java/com/example/paymentservice/application/PaymentServiceTest.java

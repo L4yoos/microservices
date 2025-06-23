@@ -1,0 +1,16 @@
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/OrderServiceApplication.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/adapters/persistence/JpaOrderRepository.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/adapters/persistence/OrderRepositoryAdapter.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/adapters/rabbitmq/RabbitMQEventListener.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/adapters/rabbitmq/RabbitMQEventPublisher.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/adapters/rest/GlobalExceptionHandler.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/adapters/rest/OrderController.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/application/OrderService.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/application/exception/InvalidOrderException.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/application/exception/OrderNotFoundException.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/application/port/OrderEventPublisherPort.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/application/port/OrderRepositoryPort.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/config/RabbitMQConfig.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/domain/Order.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/domain/OrderCreatedEvent.java
+/Users/l4yoos/Desktop/microservices/order-service/src/main/java/com/example/orderservice/domain/OrderStatus.java
