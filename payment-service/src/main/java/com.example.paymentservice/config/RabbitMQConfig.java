@@ -17,16 +17,54 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue paymentCreatedQueue() {
+        return new Queue("order.payment.created.queue");
+    }
+
+    @Bean
     public Queue paymentCompletedQueue() {
         return new Queue("order.payment.completed.queue");
     }
 
     @Bean
-    public Binding paymentCompletedBinding(@Qualifier("paymentCompletedQueue") Queue paymentCompletedQueue,
-                                           Exchange paymentExchange) {
+    public Queue paymentRefundedQueue() {
+        return new Queue("order.payment.refunded.queue");
+    }
+
+    @Bean
+    public Queue paymentCancelledQueue() {
+        return new Queue("order.payment.cancelled.queue");
+    }
+
+    @Bean
+    public Binding paymentCreatedBinding(@Qualifier("paymentCreatedQueue") Queue paymentCreatedQueue, Exchange orderExchange) {
+        return BindingBuilder.bind(paymentCreatedQueue)
+                .to(orderExchange)
+                .with("payment.created")
+                .noargs();
+    }
+
+    @Bean
+    public Binding paymentCompletedBinding(@Qualifier("paymentCompletedQueue") Queue paymentCompletedQueue, Exchange orderExchange) {
         return BindingBuilder.bind(paymentCompletedQueue)
-                .to(paymentExchange)
+                .to(orderExchange)
                 .with("payment.completed")
+                .noargs();
+    }
+
+    @Bean
+    public Binding paymentRefundedBinding(@Qualifier("paymentRefundedQueue") Queue paymentRefundedQueue, Exchange orderExchange) {
+        return BindingBuilder.bind(paymentRefundedQueue)
+                .to(orderExchange)
+                .with("payment.refunded")
+                .noargs();
+    }
+
+    @Bean
+    public Binding paymentCancelledBinding(@Qualifier("paymentCancelledQueue") Queue paymentCancelledQueue, Exchange orderExchange) {
+        return BindingBuilder.bind(paymentCancelledQueue)
+                .to(orderExchange)
+                .with("payment.cancelled")
                 .noargs();
     }
 

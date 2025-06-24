@@ -4,30 +4,28 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.util.UUID;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
-public class PaymentCompletedEvent {
+public class PaymentCancelledEvent {
     UUID paymentId;
     UUID orderId;
     UUID customerId;
     double amount;
-    LocalDateTime completedAt;
+    LocalDateTime cancelledAt;
 
     @JsonCreator
-    public PaymentCompletedEvent(
+    public PaymentCancelledEvent(
             @JsonProperty("paymentId") UUID paymentId,
             @JsonProperty("orderId") UUID orderId,
             @JsonProperty("customerId") UUID customerId,
             @JsonProperty("amount") double amount,
-            @JsonProperty("completedAt") LocalDateTime completedAt) {
+            @JsonProperty("cancelledAt") LocalDateTime cancelledAt) {
         this.paymentId = paymentId;
         this.orderId = orderId;
         this.customerId = customerId;
         this.amount = amount;
-        this.completedAt = completedAt;
+        this.cancelledAt = cancelledAt;
     }
 }
-
-

@@ -2,6 +2,7 @@ package com.example.paymentservice.adapters.persistence;
 
 import com.example.paymentservice.application.port.PaymentRepositoryPort;
 import com.example.paymentservice.domain.Payment;
+import com.example.paymentservice.domain.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +27,10 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
     @Override
     public Optional<Payment> findByOrderId(UUID orderId) {
         return jpaPaymentRepository.findByOrderId(orderId);
+    }
+
+    @Override
+    public void updateStatus(UUID paymentId, PaymentStatus status) {
+        jpaPaymentRepository.updateStatus(paymentId, status);
     }
 }

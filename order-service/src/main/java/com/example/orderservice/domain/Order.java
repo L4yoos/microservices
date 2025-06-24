@@ -1,5 +1,6 @@
 package com.example.orderservice.domain;
 
+import com.example.orderservice.application.exception.InvalidOrderException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,6 +39,12 @@ public class Order {
     private LocalDateTime createdAt;
 
     public Order(UUID customerId, List<String> items) {
+        if (customerId == null) {
+            throw new InvalidOrderException("Customer ID is required");
+        }
+        if (items == null || items.isEmpty()) {
+            throw new InvalidOrderException("Order must have at least one item");
+        }
         this.id = UUID.randomUUID();
         this.customerId = customerId;
         this.items = items;
@@ -63,5 +70,12 @@ public class Order {
             throw new IllegalStateException("Order is already canceled");
         }
         this.status = OrderStatus.CANCELLED;
+    }
+
+    public void markAsRefunded() {
+        if (this.status != OrderStatus.PAID) {
+            throw new IllegalStateException("Only paid orders can be refunded");
+        }
+        this.status = OrderStatus.REFUNDED;
     }
 }

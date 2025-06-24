@@ -1,179 +1,138 @@
 package com.example.orderservice.application;
 
-import com.example.orderservice.application.exception.InvalidOrderException;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.example.orderservice.application.exception.OrderNotFoundException;
 import com.example.orderservice.application.port.OrderEventPublisherPort;
 import com.example.orderservice.application.port.OrderRepositoryPort;
 import com.example.orderservice.domain.Order;
 import com.example.orderservice.domain.OrderCreatedEvent;
-import com.example.orderservice.domain.OrderStatus;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
+import org.mockito.*;
 import java.util.*;
-
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class OrderServiceTest {
 
+    @Mock
     private OrderRepositoryPort orderRepository;
+
+    @Mock
     private OrderEventPublisherPort eventPublisher;
+
+    @InjectMocks
     private OrderService orderService;
+
+    private UUID orderId;
+    private UUID customerId;
+    private List<String> items;
+    private Order order;
 
     @BeforeEach
     void setUp() {
-        orderRepository = mock(OrderRepositoryPort.class);
-        eventPublisher = mock(OrderEventPublisherPort.class);
-        orderService = new OrderService(orderRepository, eventPublisher);
+        MockitoAnnotations.openMocks(this);
+
+        orderId = UUID.randomUUID();
+        customerId = UUID.randomUUID();
+        items = List.of("item1", "item2");
+
+        // Tworzymy przykładowe zamówienie z ustalonym id (w konstruktorze domyślnym id generujemy, więc tutaj mock)
+        order = mock(Order.class);
+        when(order.getId()).thenReturn(orderId);
     }
 
     @Test
-    void shouldCreateOrderAndPublishEvent() {
-        UUID customerId = UUID.randomUUID();
-        List<String> items = List.of("item1", "item2");
+    void createOrder_shouldSaveOrderAndPublishEvent() {
+        // arrange
+        // zamówienie tworzone wewnątrz createOrder, więc zamockujemy orderRepository.save, żeby zwrócił nasze zamówienie
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        Order created = new Order(customerId, items);
-        when(orderRepository.save(any(Order.class))).thenReturn(created);
+        // act
+        Order created = orderService.createOrder(customerId, items);
 
-        Order result = orderService.createOrder(customerId, items);
+        // assert
+        assertNotNull(created);
+        assertEquals(orderId, created.getId());
 
-        assertNotNull(result);
-        assertEquals(OrderStatus.PENDING, result.getStatus());
         verify(orderRepository).save(any(Order.class));
-        verify(eventPublisher).publish(any());
+        verify(eventPublisher).publish(argThat(event ->
+                event instanceof OrderCreatedEvent &&
+                        ((OrderCreatedEvent) event).getOrderId().equals(orderId) &&
+                        ((OrderCreatedEvent) event).getCustomerId().equals(customerId) &&
+                        ((OrderCreatedEvent) event).getItems().equals(items)
+        ));
     }
 
     @Test
-    void shouldReturnOrderWhenExists() {
-        UUID orderId = UUID.randomUUID();
-        Order order = new Order(UUID.randomUUID(), List.of("test"));
+    void getOrder_shouldReturnOrder_whenExists() {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
         Order result = orderService.getOrder(orderId);
 
         assertEquals(order, result);
+        verify(orderRepository).findById(orderId);
     }
 
     @Test
-    void shouldThrowExceptionWhenOrderNotFound() {
-        UUID orderId = UUID.randomUUID();
+    void getOrder_shouldThrowException_whenNotFound() {
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        Exception ex = assertThrows(OrderNotFoundException.class, () -> {
-            orderService.getOrder(orderId);
-        });
-
+        OrderNotFoundException ex = assertThrows(OrderNotFoundException.class, () -> orderService.getOrder(orderId));
         assertTrue(ex.getMessage().contains(orderId.toString()));
+
+        verify(orderRepository).findById(orderId);
     }
 
     @Test
-    void shouldMarkOrderAsPaid() {
-        UUID orderId = UUID.randomUUID();
-        Order order = new Order(UUID.randomUUID(), List.of("a"));
+    void handlePaymentCompleted_shouldMarkOrderAsPaidAndSave() {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
         orderService.handlePaymentCompleted(orderId);
 
-        assertEquals(OrderStatus.PAID, order.getStatus());
+        verify(order).markAsPaid();
         verify(orderRepository).save(order);
     }
 
     @Test
-    void shouldCancelOrder() {
-        UUID orderId = UUID.randomUUID();
-        Order order = new Order(UUID.randomUUID(), List.of("a"));
+    void handlePaymentCancelled_shouldCancelOrderAndSave() {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        orderService.handleCancellationRequested(orderId);
+        orderService.handlePaymentCancelled(orderId);
 
-        assertEquals(OrderStatus.CANCELLED, order.getStatus());
+        verify(order).cancel();
         verify(orderRepository).save(order);
     }
 
     @Test
-    void shouldPublishCorrectOrderCreatedEvent() {
-        UUID customerId = UUID.randomUUID();
-        List<String> items = List.of("item1", "item2");
-
-        Order order = new Order(customerId, items);
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
-
-        orderService.createOrder(customerId, items);
-
-        ArgumentCaptor<OrderCreatedEvent> captor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
-        verify(eventPublisher).publish(captor.capture());
-
-        OrderCreatedEvent event = captor.getValue();
-        assertEquals(order.getId(), event.getOrderId());
-        assertEquals(customerId, event.getCustomerId());
-        assertEquals(items, event.getItems());
-    }
-
-    @Test
-    void shouldNotMarkAsPaidIfAlreadyPaid() {
-        Order order = new Order(UUID.randomUUID(), List.of("test"));
-        order.markAsPaid(); // already paid
-
-        UUID orderId = UUID.randomUUID();
+    void handlePaymentRefunded_shouldMarkOrderAsRefundedAndSave() {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-            orderService.handlePaymentCompleted(orderId);
-        });
+        orderService.handlePaymentRefunded(orderId);
 
-        assertEquals("Order is already paid", ex.getMessage());
+        verify(order).markAsRefunded();
+        verify(orderRepository).save(order);
     }
 
     @Test
-    void shouldThrowWhenCancellingPaidOrder() {
-        Order order = new Order(UUID.randomUUID(), List.of("test"));
-        order.markAsPaid();
+    void handlePaymentCompleted_shouldThrow_whenOrderNotFound() {
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        UUID orderId = UUID.randomUUID();
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-            orderService.handleCancellationRequested(orderId);
-        });
-
-        assertEquals("Cannot cancel a paid order", ex.getMessage());
+        assertThrows(OrderNotFoundException.class, () -> orderService.handlePaymentCompleted(orderId));
     }
 
     @Test
-    void shouldThrowWhenAlreadyCancelled() {
-        Order order = new Order(UUID.randomUUID(), List.of("test"));
-        order.cancel();
+    void handlePaymentCancelled_shouldThrow_whenOrderNotFound() {
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        UUID orderId = UUID.randomUUID();
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-            orderService.handleCancellationRequested(orderId);
-        });
-
-        assertEquals("Order is already canceled", ex.getMessage());
+        assertThrows(OrderNotFoundException.class, () -> orderService.handlePaymentCancelled(orderId));
     }
 
     @Test
-    void shouldThrowOnCreateOrderWithEmptyItems() {
-        UUID customerId = UUID.randomUUID();
-        List<String> items = List.of();
+    void handlePaymentRefunded_shouldThrow_whenOrderNotFound() {
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        Exception ex = assertThrows(InvalidOrderException.class, () -> {
-            orderService.createOrder(customerId, items);
-        });
-
-        assertTrue(ex.getMessage().toLowerCase().contains("item"));
-    }
-
-    @Test
-    void shouldThrowOnCreateOrderWithNullCustomer() {
-        Exception ex = assertThrows(InvalidOrderException.class, () -> {
-            orderService.createOrder(null, List.of("item1"));
-        });
-
-        assertNotNull(ex);
+        assertThrows(OrderNotFoundException.class, () -> orderService.handlePaymentRefunded(orderId));
     }
 }

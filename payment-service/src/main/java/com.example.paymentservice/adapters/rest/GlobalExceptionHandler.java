@@ -1,5 +1,6 @@
 package com.example.paymentservice.adapters.rest;
 
+import com.example.paymentservice.application.exception.OrderNotFoundException;
 import com.example.paymentservice.application.exception.PaymentAlreadyExistsException;
 import com.example.paymentservice.application.exception.PaymentNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -26,8 +26,14 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleOrderNotFound(OrderNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
+        System.out.println(ex.getMessage());
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred.");
     }
 
