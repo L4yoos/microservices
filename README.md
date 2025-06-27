@@ -3,13 +3,13 @@
 
 <p align="left">
   <a href="https://github.com/l4yoos/microservices/commits/main">
-    <img src="https://img.shields.io/github/last-commit/l4yoos/{microservices}" alt="Last Commit">
+    <img src="https://img.shields.io/github/last-commit/l4yoos/microservices" alt="Last Commit">
   </a>
   <a href="https://github.com/l4yoos/microservices">
-    <img src="https://img.shields.io/github/languages/top/l4yoos/{microservices}" alt="Top Language">
+    <img src="https://img.shields.io/github/languages/top/l4yoos/microservices" alt="Top Language">
   </a>
   <a href="https://github.com/l4yoos/microservices">
-    <img src="https://img.shields.io/github/languages/count/l4yoos/{microservices}" alt="Language Count">
+    <img src="https://img.shields.io/github/languages/count/l4yoos/microservices" alt="Language Count">
   </a>
 </p>
 
