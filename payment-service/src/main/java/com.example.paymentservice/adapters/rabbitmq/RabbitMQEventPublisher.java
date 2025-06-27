@@ -42,6 +42,8 @@ public class RabbitMQEventPublisher implements PaymentEventPublisherPort {
             String json = objectMapper.writeValueAsString(event);
             rabbitTemplate.convertAndSend(orderExchange.getName(), "payment.completed", json);
             logger.info("Successfully published PaymentCompletedEvent: paymentId={}", event.getPaymentId());
+            rabbitTemplate.convertAndSend(orderExchange.getName(), "notification.payment.completed", json);
+            logger.info("Successfully publish to notification.payment.completed: paymentId={}", event.getPaymentId());
         } catch (Exception e) {
             logger.error("Failed to publish PaymentCompletedEvent: paymentId={}", event.getPaymentId(), e);
             throw new RuntimeException("Failed to publish PaymentCompletedEvent", e);

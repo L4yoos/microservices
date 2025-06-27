@@ -37,6 +37,9 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue notificationPaymentCompletedQueue() { return new Queue("notification.payment.completed.queue"); }
+
+    @Bean
     public Binding paymentCreatedBinding(@Qualifier("paymentCreatedQueue") Queue paymentCreatedQueue, Exchange orderExchange) {
         return BindingBuilder.bind(paymentCreatedQueue)
                 .to(orderExchange)
@@ -65,6 +68,14 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(paymentCancelledQueue)
                 .to(orderExchange)
                 .with("payment.cancelled")
+                .noargs();
+    }
+
+    @Bean
+    public Binding notificationPaymentCompletedBinding(@Qualifier("notificationPaymentCompletedQueue") Queue queue, Exchange orderExchange) {
+        return BindingBuilder.bind(queue)
+                .to(orderExchange)
+                .with("payment.completed")
                 .noargs();
     }
 
