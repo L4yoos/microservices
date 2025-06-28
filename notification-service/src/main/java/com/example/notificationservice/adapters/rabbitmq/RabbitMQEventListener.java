@@ -26,6 +26,9 @@ public class RabbitMQEventListener {
     @Value("${twilio.phone:+48785223063}")
     String twilioPhone;
 
+    @Value("${resend.to:daleckikonrad1@gmail.com}")
+    String resendEmail;
+
     @RabbitListener(queues = "notification.payment.completed.queue")
     public void handlePaymentCompleted(String payMessage) throws JsonProcessingException {
         logger.info("[RabbitMQEventListener] Received message on notification.payment.completed.queue: {}", payMessage);
@@ -40,8 +43,13 @@ public class RabbitMQEventListener {
                     orderId, amount
             );
 
-            NotificationRequestDto request = new NotificationRequestDto(twilioPhone, message, "SMS");
-            notificationService.send(request);
+            NotificationRequestDto smsRequest = new NotificationRequestDto(twilioPhone, message, "SMS");
+            notificationService.send(smsRequest);
+
+            //static email because we don't have email in payMessage just same like phone
+            NotificationRequestDto emailRequest = new NotificationRequestDto(resendEmail, message, "EMAIL");
+            notificationService.send(emailRequest);
+
         } catch (Exception e) {
             logger.error("[RabbitMQEventListener] Failed to process payment created: message={}, error={}",
                     payMessage, e.getMessage(), e);

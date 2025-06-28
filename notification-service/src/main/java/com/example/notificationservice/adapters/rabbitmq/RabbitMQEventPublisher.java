@@ -2,6 +2,8 @@ package com.example.notificationservice.adapters.rabbitmq;
 
 import com.example.notificationservice.application.exception.UnsupportedChannelException;
 import com.example.notificationservice.application.port.NotificationEventPublisherPort;
+import com.example.notificationservice.client.ResendClient;
+import com.example.notificationservice.client.TwilioClient;
 import com.example.notificationservice.config.TwilioConfig;
 import com.example.notificationservice.domain.Notification;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,28 +19,27 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RabbitMQEventPublisher implements NotificationEventPublisherPort {
     private static final Logger logger = LogManager.getLogger(RabbitMQEventPublisher.class);
-    private final TwilioConfig twilioConfig;
-    private final ObjectMapper objectMapper;
 
-    @Value("${twilio.phone:+48785223063}")
-    String twilioPhone;
-
-    @Value("${twilio.fromNumber:+12254522911}")
-    String twilioFromPhoneNumber;
+    private final TwilioClient twilioClient;
+    private final ResendClient resendClient;
 
     @Override
     public void publish(Notification notification) {
-        logger.info("[RabbitMQEventPublisher] Publishing NotificationRequestDto: notification={}", notification);
-        if (!"SMS".equalsIgnoreCase(notification.getChannel())) {
-            throw new UnsupportedChannelException("Only SMS notifications are supported.");
-        }
+        logger.info("[RabbitMQEventPublisher] Publishing notification: {}", notification);
 
-        Message.creator(
-                new PhoneNumber(twilioPhone),
-                new PhoneNumber(twilioFromPhoneNumber),
-                notification.getMessage()
-        ).create();
-        logger.info("[RabbitMQEventPublisher] Successfully published: message={}, recipient={}",
-                notification.getMessage(), twilioPhone);
+        switch (notification.getChannel().toUpperCase()) {
+            case "SMS":
+                twilioClient.sendSms(notification.getMessage());
+                logger.info("SMS sent via Twilio to {}", notification.getRecipient());
+                break;
+
+            case "EMAIL":
+                resendClient.sendEmail(notification.getRecipient(), "Notification", notification.getMessage());
+                logger.info("Email sent via Resend to {}", notification.getRecipient());
+                break;
+
+            default:
+                throw new UnsupportedChannelException("Unsupported notification channel: " + notification.getChannel());
+        }
     }
 }

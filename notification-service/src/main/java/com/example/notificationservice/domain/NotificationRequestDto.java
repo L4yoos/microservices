@@ -10,7 +10,10 @@ import lombok.Getter;
 public class NotificationRequestDto {
 
     @NotBlank(message = "Recipient must not be blank")
-    @Pattern(regexp = "^\\+48\\d{9}$", message = "Recipient must be a valid Polish phone number starting with +48")
+    @Pattern(
+            regexp = "^\\+?[0-9]{9,15}$|^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$",
+            message = "Recipient must be a valid phone number or email address"
+    )
     private final String recipient;
 
     @NotBlank(message = "Message must not be blank")

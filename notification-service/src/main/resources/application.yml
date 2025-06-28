@@ -1,6 +1,11 @@
 server:
   port: 8882
 
+resend:
+  apiKey: reXXX #apiKey resend
+  from-email: XX@XX.dev #from-email resend
+  to: XX@XX.com #static email because we don't have email in payMessage just same like phone
+
 twilio:
   phone: +48XXXXXXXXX #Twilio Phone
   account-sid: XXX #Twilio account-sid

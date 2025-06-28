@@ -21,7 +21,7 @@ public class NotificationController {
 
     @PostMapping
     public void sendNotification(@Valid @RequestBody NotificationRequestDto dto) {
-        logger.info("[NotificationController] Received request to create notification: recipient={}, message={}", dto.getRecipient(), dto.getMessage());
+        logger.info("[NotificationController] Received request to create notification: recipient={}, message={}, channel={}", dto.getRecipient(), dto.getMessage(), dto.getChannel());
         notificationService.send(dto);
         logger.info("[NotificationController] Successfully created notification");
     }
