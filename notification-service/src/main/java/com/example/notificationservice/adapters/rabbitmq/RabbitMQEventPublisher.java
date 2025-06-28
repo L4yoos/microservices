@@ -4,15 +4,10 @@ import com.example.notificationservice.application.exception.UnsupportedChannelE
 import com.example.notificationservice.application.port.NotificationEventPublisherPort;
 import com.example.notificationservice.client.ResendClient;
 import com.example.notificationservice.client.TwilioClient;
-import com.example.notificationservice.config.TwilioConfig;
 import com.example.notificationservice.domain.Notification;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
