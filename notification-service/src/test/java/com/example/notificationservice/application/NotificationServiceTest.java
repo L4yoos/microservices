@@ -1,53 +1,72 @@
-//package com.example.notificationservice.application;
-//
-//import com.example.notificationservice.application.port.NotificationEventPublisherPort;
-//import com.example.notificationservice.application.port.NotificationRepositoryPort;
-//import com.example.notificationservice.domain.Notification;
-//import com.example.notificationservice.domain.NotificationRequestDto;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.ArgumentCaptor;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//import static org.mockito.Mockito.*;
-//
-//class NotificationServiceTest {
-//
-//    private NotificationEventPublisherPort eventPublisher;
-//    private NotificationRepositoryPort repository;
-//    private NotificationService service;
-//
-//    @BeforeEach
-//    void setUp() {
-//        eventPublisher = mock(NotificationEventPublisherPort.class);
-//        repository = mock(NotificationRepositoryPort.class);
-//        service = new NotificationService(eventPublisher, repository);
-//    }
-//
-//    @Test
-//    void shouldPublishAndSaveNotification() {
-//        NotificationRequestDto dto = new NotificationRequestDto(
-//                "+48123123123",
-//                "Test message",
-//                "SMS"
-//        );
-//
-//        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
-//
-//        service.send(dto);
-//
-//        verify(eventPublisher, times(1)).publish(notificationCaptor.capture());
-//        verify(repository, times(1)).save(notificationCaptor.capture());
-//
-//        Notification published = notificationCaptor.getAllValues().get(0);
-//        Notification saved = notificationCaptor.getAllValues().get(1);
-//
-//        assertThat(published.getId()).isNotNull();
-//        assertThat(published.getRecipient()).isEqualTo(dto.getRecipient());
-//        assertThat(published.getMessage()).isEqualTo(dto.getMessage());
-//        assertThat(published.getChannel()).isEqualTo(dto.getChannel());
-//
-//        assertThat(saved).isEqualTo(published);
-//    }
-//}
-//
+package com.example.notificationservice.application;
+
+import com.example.notificationservice.application.exception.UnsupportedChannelException;
+import com.example.notificationservice.application.port.NotificationEventPublisherPort;
+import com.example.notificationservice.application.port.NotificationRepositoryPort;
+import com.example.notificationservice.domain.Notification;
+import com.example.notificationservice.domain.NotificationRequestDto;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class NotificationServiceTest {
+
+    private NotificationEventPublisherPort publisher;
+    private NotificationRepositoryPort emailRepository;
+    private NotificationService service;
+
+    @BeforeEach
+    void setUp() {
+        publisher = mock(NotificationEventPublisherPort.class);
+        emailRepository = mock(NotificationRepositoryPort.class);
+        service = new NotificationService(publisher, List.of(emailRepository));
+    }
+
+    @Test
+    void shouldSendNotificationWhenHandlerSupportsChannel() {
+        NotificationRequestDto request = new NotificationRequestDto(
+                "user@example.com",
+                "Test message",
+                "EMAIL"
+        );
+
+        when(emailRepository.supportsChannel("EMAIL")).thenReturn(true);
+
+        service.send(request);
+
+        ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
+        verify(publisher).publish(captor.capture());
+        Notification publishedNotification = captor.getValue();
+
+        assertEquals("user@example.com", publishedNotification.getRecipient());
+        assertEquals("Test message", publishedNotification.getMessage());
+        assertEquals("EMAIL", publishedNotification.getChannel());
+
+        verify(emailRepository).send(publishedNotification);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNoHandlerSupportsChannel() {
+        NotificationRequestDto request = new NotificationRequestDto(
+                "user@example.com",
+                "Test message",
+                "PUSH"
+        );
+
+        when(emailRepository.supportsChannel("PUSH")).thenReturn(false);
+
+        UnsupportedChannelException ex = assertThrows(
+                UnsupportedChannelException.class,
+                () -> service.send(request)
+        );
+
+        assertEquals("No handler found for channel: PUSH", ex.getMessage());
+        verify(publisher).publish(any(Notification.class));
+        verify(emailRepository, never()).send(any());
+    }
+}
